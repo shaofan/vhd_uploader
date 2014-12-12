@@ -3,6 +3,10 @@
 #include <stdio.h>
 #include <string.h>
 
+#ifndef
+    #define __SIZEOF_INT__ sizeof int
+#endif
+
 void usage();
 
 int main(int argc, char **argv)
