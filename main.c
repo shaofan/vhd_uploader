@@ -4,7 +4,7 @@
 #include <string.h>
 
 #ifndef __SIZEOF_INT__
-#define __SIZEOF_INT__ (sizeof int)
+#define __SIZEOF_INT__ sizeof(int)
 #endif
 
 void usage();
