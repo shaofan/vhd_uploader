@@ -134,8 +134,8 @@ static void *upload_thread()
     int len_t = 0, idx_t = 0;
     struct upload_data updata;
     
-    printf("new thread started\n");
     for(;;) {
+        printf("start new thread main_len = %d, main_idx = %d, len = %d, idx = %d\n", main_len, main_idx, len, idx);
         pthread_mutex_lock(&length_mutex);
         
         if (len == 0) {
@@ -166,8 +166,8 @@ static void *upload_thread()
 
 static void send_data()
 {
-    printf("sending data main_len = %d, main_idx = %d\n", main_len, main_idx);
     for(;;) {
+        printf("sending data main_len = %d, main_idx = %d, len = %d, idx = %d\n", main_len, main_idx, len, idx);
         pthread_mutex_lock(&length_mutex);
         
         if (len > 0) {
