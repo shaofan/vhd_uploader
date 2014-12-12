@@ -166,11 +166,12 @@ static void *upload_thread()
 
 static void send_data()
 {
-    printf("sending data\n");
+    printf("sending data main_len = %d, main_idx = %d\n", main_len, main_idx);
     for(;;) {
         pthread_mutex_lock(&length_mutex);
         
         if (len > 0) {
+            pthread_cond_signal(&length_condition);
             pthread_cond_wait(&length_condition_r, &length_mutex);
         }
         
