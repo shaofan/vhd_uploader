@@ -1,5 +1,9 @@
 #define MAX_PAGES_PER_UPLOAD 8
 
+#ifndef __SIZEOF_INT__
+#define __SIZEOF_INT__ sizeof(int)
+#endif
+
 struct upload_data {
     int data_length;
     int data_current;

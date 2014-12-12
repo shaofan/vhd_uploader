@@ -5,10 +5,6 @@
 #include <time.h>
 #include <pthread.h>
 
-#ifndef __SIZEOF_INT__
-#define __SIZEOF_INT__ sizeof(int)
-#endif
-
 #define MAX_THREADS 3
 
 static void usage();
@@ -24,7 +20,7 @@ static int main_buffer[MAX_PAGES_PER_UPLOAD * 512 / __SIZEOF_INT__], main_length
 
 static int count;
 
-static bool quit = false;
+static int quit = 0;
 
 int main(int argc, char **argv)
 {
@@ -107,7 +103,7 @@ int main(int argc, char **argv)
         main_index++;
     }
     
-    quit = true;
+    quit = 1;
     pthread_cond_broadcast(&length_condition);
     for (i = 0; i < MAX_THREADS; i++) {
         pthread_join(threads[i], NULL);
