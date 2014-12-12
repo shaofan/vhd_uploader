@@ -15,8 +15,8 @@ static char *filename, *account, *key, *container, *vhd;
 
 static pthread_mutex_t length_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t length_condition = PTHREAD_COND_INITIALIZER, length_condition_r = PTHREAD_COND_INITIALIZER;
-static int buffer[MAX_PAGES_PER_UPLOAD * 512 / __SIZEOF_INT__], length, index;
-static int main_buffer[MAX_PAGES_PER_UPLOAD * 512 / __SIZEOF_INT__], main_length, main_index;
+static int buffer[MAX_PAGES_PER_UPLOAD * 512 / __SIZEOF_INT__], len, idx;
+static int main_buffer[MAX_PAGES_PER_UPLOAD * 512 / __SIZEOF_INT__], main_len, main_idx;
 
 static int count;
 
@@ -32,7 +32,7 @@ int main(int argc, char **argv)
     int total_pages = 0;
     int i;
     time_t begin_t, end_t;
-    bool is_send, is_pre_send;
+    int is_send, is_pre_send;
 
     if (argc != 6) {
         printf("wrong number of arguments\n");
@@ -70,37 +70,39 @@ int main(int argc, char **argv)
     begin_t = time(NULL);
     while (!feof(fp)) {
         fread(read_buffer, 512, 1, fp);
-        is_send = false;
+        is_send = 0;
         for (i = 0; i < 512 / __SIZEOF_INT__; i++) {
             if (read_buffer[i] != 0) {
-                is_send = true;
+                is_send = 1;
                 break;
             }
         }
         
         if (is_send) {
             if (is_pre_send) {
-                if (main_length < MAX_PAGES_PER_UPLOAD - 1) {
-                    memcpy(main_buffer + main_length * 512, read_buffer, 512);
-                    main_length++;
-                } else if (main_length == MAX_PAGES_PER_UPLOAD - 1) {
-                    memcpy(main_buffer + main_length * 512, read_buffer, 512);
-                    main_length++;
+                if (main_len < MAX_PAGES_PER_UPLOAD - 1) {
+                    memcpy(main_buffer + main_len * 512, read_buffer, 512);
+                    main_len++;
+                } else if (main_len == MAX_PAGES_PER_UPLOAD - 1) {
+                    memcpy(main_buffer + main_len * 512, read_buffer, 512);
+                    main_len++;
                     send_data();
-                    main_length = 0;
+                    main_len = 0;
                 }
             }
-        } else if (main_length > 0) {
+        } else if (main_len > 0) {
             send_data();
-            main_length = 0;
+            main_len = 0;
         }
         
-        if (main_index % 100 == 0) {
+        is_pre_send = is_send;
+        
+        if (main_idx % 100 == 0) {
             end_t = time(NULL);
-            printf("Scaned: %.2f\% (%d/%d) Uploaded: %d pages Average Speed: %.2f KB/S Elapsed Time: %2d:%2d:%2d\r", main_index * 100.0 / total_pages, main_index, total_pages, count, (count / 2.0) / (end_t - begin_t), (end_t - begin_t) / 3600, (end_t - begin_t) % 3600 / 60, (end_t - begin_t) % 3600 % 60);
+            printf("Scaned: %.2f\% (%d/%d) Uploaded: %d pages Average Speed: %.2f KB/S Elapsed Time: %2d:%2d:%2d\r", main_idx * 100.0 / total_pages, main_idx, total_pages, count, (count / 2.0) / (end_t - begin_t), (end_t - begin_t) / 3600, (end_t - begin_t) % 3600 / 60, (end_t - begin_t) % 3600 % 60);
             fflush(stdout);
         }
-        main_index++;
+        main_idx++;
     }
     
     quit = 1;
@@ -110,7 +112,7 @@ int main(int argc, char **argv)
     }
     
     end_t = time(NULL);
-    printf("Scaned: %.2f\% (%d/%d) Uploaded: %d pages Average Speed: %.2f KB/S Elapsed Time: %2d:%2d:%2d\n", main_index * 100.0 / total_pages, main_index, total_pages, count, (count / 2.0) / (end_t - begin_t), (end_t - begin_t) / 3600, (end_t - begin_t) % 3600 / 60, (end_t - begin_t) % 3600 % 60);
+    printf("Scaned: %.2f\% (%d/%d) Uploaded: %d pages Average Speed: %.2f KB/S Elapsed Time: %2d:%2d:%2d\n", main_idx * 100.0 / total_pages, main_idx, total_pages, count, (count / 2.0) / (end_t - begin_t), (end_t - begin_t) / 3600, (end_t - begin_t) % 3600 / 60, (end_t - begin_t) % 3600 % 60);
     fflush(stdout);
 
     azure_upload_cleanup();
@@ -124,31 +126,31 @@ static void usage()
 
 static void *upload_thread()
 {
-    int length_t = 0, index_t = 0;
+    int len_t = 0, idx_t = 0;
     struct upload_data updata;
     
     for(;;) {
         pthread_mutex_lock(&length_mutex);
         
-        if (length == 0) {
+        if (len == 0) {
             pthread_cond_wait(&length_condition, &length_mutex);
             if (quit) {
                 break;
             }
         }       
         
-        length_t = length;
-        index_t = index;
-        memcpy(updata.buffer, buffer, length_t);
+        len_t = len;
+        idx_t = idx;
+        memcpy(updata.buffer, buffer, len_t);
         
-        length = 0;
+        len = 0;
         pthread_cond_signal(&length_condition_r);
         
         pthread_mutex_unlock(&length_mutex);
         
-        if (length_t > 0) {
-            azure_upload((struct upload_data *)buffer_t, index_t * 512, length_t, account, key, container, vhd);
-            length_t = 0;
+        if (len_t > 0) {
+            azure_upload((struct upload_data *)buffer_t, idx_t * 512, len_t, account, key, container, vhd);
+            len_t = 0;
         }
         if (quit) {
             break;
@@ -161,17 +163,17 @@ static void send_data()
     for(;;) {
         pthread_mutex_lock(&length_mutex);
         
-        if (length > 0) {
+        if (len > 0) {
             pthread_cond_wait(&length_condition_r, &length_mutex);
         }
         
-        length = main_length;
-        index = main_index;
-        memcpy(buffer, main_buffer, length);
+        len = main_len;
+        idx = main_idx;
+        memcpy(buffer, main_buffer, len);
         
         pthread_cond_signal(&length_condition);
         
-        count += main_length;
+        count += main_len;
         break;
         
         pthread_mutex_unlock(&length_mutex);
