@@ -14,7 +14,7 @@ int main(int argc, char **argv)
     char *filename, *account, *key, *container, *vhd;
     FILE *fp;
     int buffer[512/__SIZEOF_INT__];
-    int index = 0;
+    int index = 0, total_pages = 0;
     int i, count;
 
     if (argc != 6) {
@@ -36,6 +36,10 @@ int main(int argc, char **argv)
     }
 
     azure_upload_init();
+    
+    fseek(fp, 0L, SEEK_END);
+    total_pages = ftell(fp) / 512;
+    fseek(fp, 0L, SEEK_SET);
 
     while (!feof(fp)) {
         fread(buffer, 512, 1, fp);
@@ -46,12 +50,13 @@ int main(int argc, char **argv)
                 break;
             }
         }
-        if (index % 10 == 0) {
-            printf("Scaned %d pages, uploaded %d pages\r", index, count);
+        if (index % 100 == 0) {
+            printf("Total %d pages, scaned %d pages, uploaded %d pages\r", total_pages, index, count);
             fflush(stdout);
         }
         index++;
     }
+    printf("Total %d pages, scaned %d pages, uploaded %d pages\r", total_pages, index, count);
 
     azure_upload_cleanup();
     fclose(fp);
