@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
 #ifndef __SIZEOF_INT__
 #define __SIZEOF_INT__ sizeof(int)
@@ -16,6 +17,7 @@ int main(int argc, char **argv)
     int buffer[512/__SIZEOF_INT__];
     int index = 0, total_pages = 0;
     int i, count;
+    time_t begin_t, end_t;
 
     if (argc != 6) {
         printf("wrong number of arguments\n");
@@ -41,6 +43,7 @@ int main(int argc, char **argv)
     total_pages = ftell(fp) / 512;
     fseek(fp, 0L, SEEK_SET);
 
+    begin_t = time(NULL);
     while (!feof(fp)) {
         fread(buffer, 512, 1, fp);
         for (i = 0; i < 512/__SIZEOF_INT__; i++) {
@@ -51,12 +54,15 @@ int main(int argc, char **argv)
             }
         }
         if (index % 100 == 0) {
-            printf("Total %d pages, scaned %d pages, uploaded %d pages\r", total_pages, index, count);
+            end_t = time(NULL);
+            printf("Total %d pages, scaned %d pages, uploaded %d pages, %f KBps\r", total_pages, index, count, (count / 2.0) / (end_t - begin_t));
             fflush(stdout);
         }
         index++;
     }
-    printf("Total %d pages, scaned %d pages, uploaded %d pages\r", total_pages, index, count);
+    end_t = time(NULL);
+    printf("Total %d pages, scaned %d pages, uploaded %d pages, %f KBps\r", total_pages, index, count, (count / 2.0) / (end_t - begin_t));
+    fflush(stdout);
 
     azure_upload_cleanup();
     fclose(fp);
