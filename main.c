@@ -8,13 +8,15 @@
 #define __SIZEOF_INT__ sizeof(int)
 #endif
 
+#define MAX_PAGE 8
+
 void usage();
 
 int main(int argc, char **argv)
 {
     char *filename, *account, *key, *container, *vhd;
     FILE *fp;
-    int buffer[512/__SIZEOF_INT__];
+    int buffer[MAX_PAGE * 512 / __SIZEOF_INT__];
     int index = 0, total_pages = 0;
     int i, count;
     time_t begin_t, end_t;
@@ -45,11 +47,11 @@ int main(int argc, char **argv)
 
     begin_t = time(NULL);
     while (!feof(fp)) {
-        fread(buffer, 512, 1, fp);
-        for (i = 0; i < 512/__SIZEOF_INT__; i++) {
+        fread(buffer, MAX_PAGE * 512, 1, fp);
+        for (i = 0; i < MAX_PAGE * 512 / __SIZEOF_INT__; i++) {
             if (buffer[i] != 0) {
-                azure_upload((char *)buffer, index * 512, 512, account, key, container, vhd);
-                count++;
+                azure_upload((char *)buffer, index * 512, MAX_PAGE * 512, account, key, container, vhd);
+                count += MAX_PAGE;
                 break;
             }
         }
@@ -58,7 +60,7 @@ int main(int argc, char **argv)
             printf("Total %d pages, scaned %d pages, uploaded %d pages, %f KBps\r", total_pages, index, count, (count / 2.0) / (end_t - begin_t));
             fflush(stdout);
         }
-        index++;
+        index += MAX_PAGE;
     }
     end_t = time(NULL);
     printf("Total %d pages, scaned %d pages, uploaded %d pages, %f KBps\r", total_pages, index, count, (count / 2.0) / (end_t - begin_t));
