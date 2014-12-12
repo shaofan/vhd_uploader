@@ -91,6 +91,9 @@ int main(int argc, char **argv)
                     send_data();
                     main_len = 0;
                 }
+            } else {
+                memcpy(main_buffer + main_len * 512, read_buffer, 512);
+                main_len++;
             }
         } else if (main_len > 0) {
             send_data();
