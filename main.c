@@ -20,7 +20,7 @@ static int main_buffer[MAX_PAGES_PER_UPLOAD * 512 / __SIZEOF_INT__], main_len, m
 
 static int count;
 
-static int quit = 0;
+static int quit;
 
 int main(int argc, char **argv)
 {
@@ -78,8 +78,8 @@ int main(int argc, char **argv)
             }
         }
         
-        if (is_send) {
-            if (is_pre_send) {
+        if (is_send == 1) {
+            if (is_pre_send == 1) {
                 if (main_len < MAX_PAGES_PER_UPLOAD - 1) {
                     memcpy(main_buffer + main_len * 512, read_buffer, 512);
                     main_len++;
@@ -134,7 +134,7 @@ static void *upload_thread()
         
         if (len == 0) {
             pthread_cond_wait(&length_condition, &length_mutex);
-            if (quit) {
+            if (quit == 1) {
                 break;
             }
         }       
@@ -153,7 +153,7 @@ static void *upload_thread()
             azure_upload(&updata, idx_t * 512, len_t, account, key, container, vhd);
             len_t = 0;
         }
-        if (quit) {
+        if (quit == 1) {
             break;
         }
     }
