@@ -8,7 +8,7 @@
 #define MAX_THREADS 3
 
 static void usage();
-static void *upload_thread()
+static void *upload_thread();
 static void send_data();
 
 static char *filename, *account, *key, *container, *vhd;
