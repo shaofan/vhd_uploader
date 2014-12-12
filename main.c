@@ -61,6 +61,7 @@ int main(int argc, char **argv)
         return(1);
     }
     total_pages /= 512;    
+    printf("total_pages = %d", total_pages);
     fseek(fp, 0L, SEEK_SET);
     
     for (i = 0; i < MAX_THREADS; i++) {
@@ -161,6 +162,7 @@ static void *upload_thread()
 
 static void send_data()
 {
+    printf("sending data");
     for(;;) {
         pthread_mutex_lock(&length_mutex);
         
