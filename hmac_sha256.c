@@ -63,7 +63,7 @@ char    *
 base64( const unsigned char *src, size_t sz )
 {
     unsigned char               *pp, *p, *q;
-    Thread static unsigned char *qq = NULL;
+    static unsigned char *qq = NULL;
     size_t                      i, safe = sz;
 
     if ( qq ) {
