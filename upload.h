@@ -1,3 +1,11 @@
+#define MAX_PAGES_PER_UPLOAD 8
+
+struct upload_data {
+    int data_length;
+    int data_current;
+    int buffer[MAX_PAGES_PER_UPLOAD * 512 / __SIZEOF_INT__];
+}
+
 void azure_upload_init();
-int azure_upload(char *data, int begin, int length, char *account, char *key, char *container, char *vhd);
+int azure_upload(struct upload_data *data, int begin, int length, char *account, char *key, char *container, char *vhd);
 void azure_upload_cleanup();
