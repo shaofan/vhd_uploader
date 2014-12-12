@@ -3,8 +3,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#ifndef
-    #define __SIZEOF_INT__ sizeof int
+#ifndef __SIZEOF_INT__
+#define __SIZEOF_INT__ (sizeof int)
 #endif
 
 void usage();
