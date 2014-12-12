@@ -57,13 +57,13 @@ int main(int argc, char **argv)
         }
         if (index % 100 == 0) {
             end_t = time(NULL);
-            printf("Total %d pages, scaned %d pages, uploaded %d pages, %f KBps\r", total_pages, index, count, (count / 2.0) / (end_t - begin_t));
+            printf("Scaned: %.2f\% (%d/%d) Uploaded: %d pages Average Speed: %.2f KB/S Elapsed Time: %d:%d:%d\r", index * 100.0 / total_pages, index, total_pages, count, (count / 2.0) / (end_t - begin_t), (end_t - begin_t) / 3600, (end_t - begin_t) % 3600 / 60, (end_t - begin_t) % 3600 % 60);
             fflush(stdout);
         }
         index += MAX_PAGE;
     }
     end_t = time(NULL);
-    printf("Total %d pages, scaned %d pages, uploaded %d pages, %f KBps\r", total_pages, index, count, (count / 2.0) / (end_t - begin_t));
+    printf("Scaned: %.2f\% (%d/%d) Uploaded: %d pages Average Speed: %.2f KB/S Elapsed Time: %d:%d:%d\r", index * 100.0 / total_pages, index, total_pages, count, (count / 2.0) / (end_t - begin_t), (end_t - begin_t) / 3600, (end_t - begin_t) % 3600 / 60, (end_t - begin_t) % 3600 % 60);
     fflush(stdout);
 
     azure_upload_cleanup();
