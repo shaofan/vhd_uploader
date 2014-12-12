@@ -149,6 +149,7 @@ static void *upload_thread()
         pthread_mutex_unlock(&length_mutex);
         
         if (len_t > 0) {
+            printf("start upload");
             azure_upload(&updata, idx_t * 512, len_t, account, key, container, vhd);
             len_t = 0;
         }
