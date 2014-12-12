@@ -55,13 +55,13 @@ int main(int argc, char **argv)
     azure_upload_init();
     
     fseek(fp, 0L, SEEK_END);
-    total_pages = ftell(fp);
-    if (total_pages % 512 != 0) {
+    total_pages = ftell(fp) / 512;
+    /*if (total_pages % 512 != 0) {
         printf("wrong file size\n");
         return(1);
     }
-    total_pages /= 512;    
-    printf("total_pages = %d", total_pages);
+    total_pages /= 512;*/    
+    printf("total_pages = %d\n", total_pages);
     fseek(fp, 0L, SEEK_SET);
     
     for (i = 0; i < MAX_THREADS; i++) {
@@ -78,6 +78,7 @@ int main(int argc, char **argv)
                 break;
             }
         }
+        printf("is_send = %d, is_pre_send = %d\n", is_send, is_pre_send);
         
         if (is_send == 1) {
             if (is_pre_send == 1) {
@@ -130,7 +131,7 @@ static void *upload_thread()
     int len_t = 0, idx_t = 0;
     struct upload_data updata;
     
-    printf("new thread started");
+    printf("new thread started\n");
     for(;;) {
         pthread_mutex_lock(&length_mutex);
         
@@ -162,7 +163,7 @@ static void *upload_thread()
 
 static void send_data()
 {
-    printf("sending data");
+    printf("sending data\n");
     for(;;) {
         pthread_mutex_lock(&length_mutex);
         
