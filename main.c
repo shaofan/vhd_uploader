@@ -110,12 +110,14 @@ int main(int argc, char **argv)
     
     quit = 1;
     printf("quit set\n");
-    pthread_mutex_lock(&length_mutex);
-    pthread_cond_broadcast(&length_condition);
-    pthread_mutex_unlock(&length_mutex);
-    printf("quit broudcast\n");
+    
     for (i = 0; i < MAX_THREADS; i++) {
         pthread_join(threads[i], NULL);
+        
+        pthread_mutex_lock(&length_mutex);
+        pthread_cond_broadcast(&length_condition);
+        pthread_mutex_unlock(&length_mutex);
+        printf("quit broudcast\n");
     }
     printf("quit waiting\n");
     
@@ -146,12 +148,12 @@ static void *upload_thread()
         
         if (len == 0) {
             if (quit == 1) {
-                printf("thread quit");
+                printf("thread quit\n");
                 break;
             }
             pthread_cond_wait(&length_condition, &length_mutex);
             if (quit == 1) {
-                printf("thread quit from wait");
+                printf("thread quit from wait\n");
                 break;
             }
         }       
@@ -170,7 +172,7 @@ static void *upload_thread()
             len_t = 0;
         }
         if (quit == 1) {
-            printf("thread quit job finish");
+            printf("thread quit job finish\n");
             break;
         }
     }

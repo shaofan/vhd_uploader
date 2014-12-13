@@ -104,6 +104,7 @@ int azure_upload(CURL *curl, struct upload_data *data, int begin, int length, ch
         res = curl_easy_perform(curl);
         if (res != CURLE_OK) {
             fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+            fprintf(stderr, "url = %s, sign_str = %s\n", url, sign_str);
         }
         
         curl_slist_free_all(headerlist);
