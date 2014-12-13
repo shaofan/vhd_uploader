@@ -32,9 +32,8 @@ void azure_upload_init()
     curl_global_init(CURL_GLOBAL_ALL);
 }
 
-int azure_upload(struct upload_data *data, int begin, int length, char *account, char *key, char *container, char *vhd)
+int azure_upload(CURL *curl, struct upload_data *data, int begin, int length, char *account, char *key, char *container, char *vhd)
 {
-    CURL *curl;
     CURLcode res;
 
     struct curl_slist *headerlist = NULL;
@@ -70,7 +69,6 @@ int azure_upload(struct upload_data *data, int begin, int length, char *account,
     data->data_length = length;
     data->data_current = 0;
 
-    curl = curl_easy_init();
     if (curl) {
         time(&current_time);
         current_tm = gmtime(&current_time);
@@ -110,7 +108,6 @@ int azure_upload(struct upload_data *data, int begin, int length, char *account,
         }
         
         curl_slist_free_all(headerlist);
-        curl_easy_cleanup(curl);
     }
 }
 

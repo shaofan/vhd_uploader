@@ -1,5 +1,7 @@
 #include "upload.h"
 
+#include <curl/curl.h>
+
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
@@ -132,6 +134,10 @@ static void *upload_thread()
     int len_t = 0, idx_t = 0;
     struct upload_data updata;
     
+    CURL *curl;
+    
+    curl = curl_easy_init();
+    
     for(;;) {
         pthread_mutex_lock(&length_mutex);
         
@@ -152,13 +158,15 @@ static void *upload_thread()
         pthread_mutex_unlock(&length_mutex);
         
         if (len_t > 0) {
-            azure_upload(&updata, idx_t * 512, len_t * 512, account, key, container, vhd);
+            azure_upload(curl, &updata, idx_t * 512, len_t * 512, account, key, container, vhd);
             len_t = 0;
         }
         if (quit == 1) {
             break;
         }
     }
+    
+    curl_easy_cleanup(curl);
 }
 
 static void send_data()
