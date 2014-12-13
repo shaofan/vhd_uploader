@@ -51,6 +51,8 @@ int azure_upload(struct upload_data *data, int begin, int length, char *account,
     time_t current_time;
     struct tm *current_tm;
 
+    printf("uploading begin = %d, length = %d\n", begin, length);
+
     if (data == NULL || begin < 0 || length <= 0 || length % 512 != 0) {
         return 1;
     }
