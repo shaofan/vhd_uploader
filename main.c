@@ -112,10 +112,13 @@ int main(int argc, char **argv)
     printf("quit set\n");
     
     for (i = 0; i < MAX_THREADS; i++) {
-        pthread_join(threads[i], NULL);
-        
-        pthread_cond_broadcast(&length_condition);
         printf("quit broudcast\n");
+        pthread_cond_broadcast(&length_condition);
+    }
+    
+    for (i = 0; i < MAX_THREADS; i++) {
+        printf("thread join\n");
+        pthread_join(threads[i], NULL);
     }
     printf("quit waiting\n");
     
