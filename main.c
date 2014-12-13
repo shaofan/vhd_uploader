@@ -172,7 +172,7 @@ static void *upload_thread()
             azure_upload(curl, &updata, idx_t * 512, len_t * 512, account, key, container, vhd);
             send_count++;
             process_count++;
-            printf("Thread 0x%.8x %.8x - processed %lu\n", pthread_getthreadid_np(), process_count);
+            printf("processed %lu\n", process_count);
             len_t = 0;
         }
         if (quit == 1) {
