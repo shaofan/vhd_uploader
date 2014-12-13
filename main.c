@@ -113,7 +113,9 @@ int main(int argc, char **argv)
     
     for (i = 0; i < MAX_THREADS; i++) {
         printf("quit broudcast\n");
-        pthread_cond_broadcast(&length_condition);
+        pthread_mutex_lock(&length_mutex);
+        pthread_cond_signal(&length_condition);
+        pthread_mutex_unlock(&length_mutex);
     }
     
     for (i = 0; i < MAX_THREADS; i++) {
