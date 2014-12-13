@@ -174,6 +174,7 @@ static void send_data()
         
         if (len > 0) {
             pthread_cond_signal(&length_condition);
+            printf("send_data wait cond main_len = %d, main_idx = %d, len = %d, idx = %d\n", main_len, main_idx, len, idx);
             pthread_cond_wait(&length_condition_r, &length_mutex);
         }
         
