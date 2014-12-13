@@ -15,10 +15,10 @@ static char *filename, *account, *key, *container, *vhd;
 
 static pthread_mutex_t length_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t length_condition = PTHREAD_COND_INITIALIZER, length_condition_r = PTHREAD_COND_INITIALIZER;
-static long buffer[MAX_PAGES_PER_UPLOAD * 512 / __SIZEOF_LONG__], len, idx;
-static long main_buffer[MAX_PAGES_PER_UPLOAD * 512 / __SIZEOF_LONG__], main_len, main_idx;
+static unsigned long buffer[MAX_PAGES_PER_UPLOAD * 512 / __SIZEOF_LONG__], len, idx;
+static unsigned long main_buffer[MAX_PAGES_PER_UPLOAD * 512 / __SIZEOF_LONG__], main_len, main_idx;
 
-static long count, request_count, send_count;
+static unsigned long count, request_count, send_count;
 
 static int quit;
 
@@ -28,11 +28,11 @@ int main(int argc, char **argv)
 
     pthread_t threads[MAX_THREADS];
     
-    long read_buffer[512 / __SIZEOF_LONG__];
-    long total_pages = 0;
+    unsigned long read_buffer[512 / __SIZEOF_LONG__];
+    unsigned long total_pages = 0;
     int i;
     time_t begin_t, end_t;
-    long is_send, is_pre_send;
+    unsigned long is_send, is_pre_send;
 
     if (argc != 6) {
         printf("wrong number of arguments\n");
@@ -104,7 +104,7 @@ int main(int argc, char **argv)
         
         if (main_idx % 1000 == 0) {
             end_t = time(NULL);
-            printf("Scaned: %.2f\% (%.2fMB/%.2fMB), Uploaded: %.2fMB in %d/%d requests, Average Speed: %.2fMB/S, Elapsed Time: %02d:%02d:%02d\r", main_idx * 100.0 / total_pages, main_idx / 2048.0 , total_pages / 2048.0, count / 2048.0, send_count, request_count, (count / 2048.0) / (end_t - begin_t), (end_t - begin_t) / 3600, (end_t - begin_t) % 3600 / 60, (end_t - begin_t) % 3600 % 60);
+            printf("Scaned: %.2f\% (%.2fMB/%.2fMB), Uploaded: %.2fMB in %lu/%lu requests, Average Speed: %.2fMB/S, Elapsed Time: %02d:%02d:%02d\r", main_idx * 100.0 / total_pages, main_idx / 2048.0 , total_pages / 2048.0, count / 2048.0, send_count, request_count, (count / 2048.0) / (end_t - begin_t), (end_t - begin_t) / 3600, (end_t - begin_t) % 3600 / 60, (end_t - begin_t) % 3600 % 60);
             fflush(stdout);
         }
         main_idx++;
@@ -121,7 +121,7 @@ int main(int argc, char **argv)
     }
     
     end_t = time(NULL);
-    printf("Scaned: %.2f\% (%.2fMB/%.2fMB), Uploaded: %.2fMB in %d/%d requests, Average Speed: %.2fMB/S, Elapsed Time: %02d:%02d:%02d\n", main_idx * 100.0 / total_pages, main_idx / 2048.0, total_pages / 2048.0, count / 2048.0, send_count, request_count, (count / 2048.0) / (end_t - begin_t), (end_t - begin_t) / 3600, (end_t - begin_t) % 3600 / 60, (end_t - begin_t) % 3600 % 60);
+    printf("Scaned: %.2f\% (%.2fMB/%.2fMB), Uploaded: %.2fMB in %lu/%lu requests, Average Speed: %.2fMB/S, Elapsed Time: %02d:%02d:%02d\n", main_idx * 100.0 / total_pages, main_idx / 2048.0, total_pages / 2048.0, count / 2048.0, send_count, request_count, (count / 2048.0) / (end_t - begin_t), (end_t - begin_t) / 3600, (end_t - begin_t) % 3600 / 60, (end_t - begin_t) % 3600 % 60);
     fflush(stdout);
 
     azure_upload_cleanup();
@@ -135,7 +135,7 @@ static void usage()
 
 static void *upload_thread()
 {
-    long len_t = 0, idx_t = 0;
+    unsigned long len_t = 0, idx_t = 0;
     struct upload_data updata;
     
     CURL *curl;

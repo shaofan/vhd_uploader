@@ -31,13 +31,13 @@ void azure_upload_init()
     curl_global_init(CURL_GLOBAL_ALL);
 }
 
-int azure_upload(CURL *curl, struct upload_data *data, long begin, long length, char *account, char *key, char *container, char *vhd)
+int azure_upload(CURL *curl, struct upload_data *data, unsigned long begin, unsigned long length, char *account, char *key, char *container, char *vhd)
 {
     CURLcode res;
 
     struct curl_slist *headerlist = NULL;
     char date_str[64], header_date_str[64];
-    char header_length_str[64];
+    //char header_length_str[64];
     unsigned char header_authorization_str[256];
     unsigned char range_str[64], header_range_str[64];
     unsigned char sign_str[1024], signed_str[1024], *base64_str;
@@ -55,7 +55,7 @@ int azure_upload(CURL *curl, struct upload_data *data, long begin, long length, 
 
     memset(date_str, 0x0, sizeof date_str);
     memset(header_date_str, 0x0, sizeof header_date_str);
-    memset(header_length_str, 0x0, sizeof header_length_str);
+    //memset(header_length_str, 0x0, sizeof header_length_str);
     memset(header_authorization_str, 0x0, sizeof header_authorization_str);
     memset(range_str, 0x0, sizeof range_str);
     memset(header_range_str, 0x0, sizeof header_range_str);
@@ -75,15 +75,15 @@ int azure_upload(CURL *curl, struct upload_data *data, long begin, long length, 
         sprintf(header_date_str, "Date: %s", date_str);
         headerlist = curl_slist_append(headerlist, header_date_str);
         headerlist = curl_slist_append(headerlist, "x-ms-version: 2014-02-14");
-        sprintf(range_str, "bytes=%d-%d", begin, begin + length - 1);
+        sprintf(range_str, "bytes=%lu-%lu", begin, begin + length - 1);
         sprintf(header_range_str, "Range: %s", range_str);
         headerlist = curl_slist_append(headerlist, header_range_str);
-        sprintf(header_length_str, "Content-Length: %d", length);
-        headerlist = curl_slist_append(headerlist, header_length_str);
+        //sprintf(header_length_str, "Content-Length: %d", length);
+        //headerlist = curl_slist_append(headerlist, header_length_str);
         headerlist = curl_slist_append(headerlist, "x-ms-page-write: update");
         headerlist = curl_slist_append(headerlist, "Content-Type: application/octet-stream");
 
-        sprintf(sign_str, "PUT\n\n\n%d\n\napplication/octet-stream\n%s\n\n\n\n\n%s\nx-ms-page-write:update\nx-ms-version:2014-02-14\n/%s/%s/%s\ncomp:page", length, date_str, range_str, account, container, vhd);
+        sprintf(sign_str, "PUT\n\n\n%lu\n\napplication/octet-stream\n%s\n\n\n\n\n%s\nx-ms-page-write:update\nx-ms-version:2014-02-14\n/%s/%s/%s\ncomp:page", length, date_str, range_str, account, container, vhd);
         hmac_sha256(sign_str, strlen(sign_str), decoded_sign_key, strlen(decoded_sign_key), signed_str);
         base64_str = base64(signed_str, SHA256_DIGEST_LENGTH);
         sprintf(header_authorization_str, "Authorization: SharedKey msp:%s", base64_str);
