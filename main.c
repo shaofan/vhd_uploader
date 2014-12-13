@@ -138,6 +138,8 @@ static void *upload_thread()
         printf("start new thread main_len = %d, main_idx = %d, len = %d, idx = %d\n", main_len, main_idx, len, idx);
         pthread_mutex_lock(&length_mutex);
         
+        printf("get mutex main_len = %d, main_idx = %d, len = %d, idx = %d\n", main_len, main_idx, len, idx);
+        
         if (len == 0) {
             pthread_cond_wait(&length_condition, &length_mutex);
             if (quit == 1) {
