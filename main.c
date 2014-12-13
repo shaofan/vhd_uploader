@@ -149,7 +149,7 @@ static void *upload_thread()
         
         len_t = len;
         idx_t = idx;
-        memcpy(updata.buffer, buffer, len_t);
+        memcpy(updata.buffer, buffer, len_t * 512);
         
         len = 0;
         pthread_cond_signal(&length_condition_r);
@@ -157,7 +157,7 @@ static void *upload_thread()
         pthread_mutex_unlock(&length_mutex);
         
         if (len_t > 0) {
-            azure_upload(&updata, idx_t * 512, len_t, account, key, container, vhd);
+            azure_upload(&updata, idx_t * 512, len_t * 512, account, key, container, vhd);
             len_t = 0;
         }
         if (quit == 1) {
@@ -179,7 +179,7 @@ static void send_data()
         }
         
         len = main_len;
-        idx = main_idx;
+        idx = main_idx - main_len;
         memcpy(buffer, main_buffer, len);
         
         pthread_cond_signal(&length_condition);
