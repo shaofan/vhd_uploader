@@ -109,13 +109,15 @@ int main(int argc, char **argv)
     }
     
     quit = 1;
-    printf("quit set");
+    printf("quit set\n");
+    pthread_mutex_lock(&length_mutex);
     pthread_cond_broadcast(&length_condition);
-    printf("quit broudcast");
+    pthread_mutex_unlock(&length_mutex);
+    printf("quit broudcast\n");
     for (i = 0; i < MAX_THREADS; i++) {
         pthread_join(threads[i], NULL);
     }
-    printf("quit waiting");
+    printf("quit waiting\n");
     
     end_t = time(NULL);
     printf("Scaned: %.2f\% (%d/%d), Uploaded: %d pages, Average Speed: %.2f KB/S, Elapsed Time: %02d:%02d:%02d\n", main_idx * 100.0 / total_pages, main_idx, total_pages, count, (count / 2.0) / (end_t - begin_t), (end_t - begin_t) / 3600, (end_t - begin_t) % 3600 / 60, (end_t - begin_t) % 3600 % 60);
