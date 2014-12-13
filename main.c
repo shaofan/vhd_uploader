@@ -114,9 +114,7 @@ int main(int argc, char **argv)
     for (i = 0; i < MAX_THREADS; i++) {
         pthread_join(threads[i], NULL);
         
-        pthread_mutex_lock(&length_mutex);
         pthread_cond_broadcast(&length_condition);
-        pthread_mutex_unlock(&length_mutex);
         printf("quit broudcast\n");
     }
     printf("quit waiting\n");
