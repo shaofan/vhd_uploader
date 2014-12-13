@@ -79,6 +79,7 @@ int main(int argc, char **argv)
         }
         
         if (is_send == 1) {
+            main_idx++;
             if (is_pre_send == 1) {
                 if (main_len < MAX_PAGES_PER_UPLOAD - 1) {
                     memcpy(main_buffer + main_len * 512 / __SIZEOF_LONG__, read_buffer, 512);
@@ -94,10 +95,13 @@ int main(int argc, char **argv)
                 memcpy(main_buffer + main_len * 512 / __SIZEOF_LONG__, read_buffer, 512);
                 main_len++;
             }
-        } else if (main_len > 0) {
-            send_data();
-            request_count++;
-            main_len = 0;
+        } else {
+            if (main_len > 0) {
+                send_data();
+                request_count++;
+                main_len = 0;
+            }
+            main_idx++;
         }
         
         is_pre_send = is_send;
@@ -107,7 +111,6 @@ int main(int argc, char **argv)
             printf("Scaned: %.2f\% (%.2fMB/%.2fMB), Uploaded: %.2fMB in %lu/%lu requests, Average Speed: %.2fMB/S, Elapsed Time: %02d:%02d:%02d\r", main_idx * 100.0 / total_pages, main_idx / 2048.0 , total_pages / 2048.0, count / 2048.0, send_count, request_count, (count / 2048.0) / (end_t - begin_t), (end_t - begin_t) / 3600, (end_t - begin_t) % 3600 / 60, (end_t - begin_t) % 3600 % 60);
             fflush(stdout);
         }
-        main_idx++;
     }
     
     quit = 1;
@@ -161,7 +164,7 @@ static void *upload_thread()
         
         len_t = len;
         idx_t = idx;
-        memcpy(updata.buffer, buffer, len_t * 512 / __SIZEOF_LONG__);
+        memcpy(updata.buffer, buffer, len_t * 512);
         send_count++;
         
         len = 0;
@@ -170,7 +173,6 @@ static void *upload_thread()
         pthread_mutex_unlock(&length_mutex);
         
         azure_upload(curl, &updata, idx_t * 512, len_t * 512, account, key, container, vhd);
-        len_t = 0;
 
         if (quit == 1) {
             break;
@@ -191,7 +193,7 @@ static void send_data()
     
     len = main_len;
     idx = main_idx - main_len;
-    memcpy(buffer, main_buffer, len * 512 / __SIZEOF_LONG__);
+    memcpy(buffer, main_buffer, len * 512);
     
     pthread_cond_signal(&length_condition);
     

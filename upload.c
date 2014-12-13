@@ -9,8 +9,10 @@
 static size_t read_callback(void *ptr, size_t size, size_t nmemb, void *stream)
 {
     struct upload_data *updata;
+    char *pdata;
     
     updata = (struct upload_data *) stream;
+    pdata = (char *) updata->buffer;
     
     if (updata->data_current == updata->data_length - 1) {
         return 0;
@@ -21,12 +23,13 @@ static size_t read_callback(void *ptr, size_t size, size_t nmemb, void *stream)
         count = updata->data_length - updata->data_current;
     }
 
-    memcpy(ptr, stream + updata->data_current, count);
+    memcpy(ptr, pdata + updata->data_current, count);
     updata->data_current += count;
     return count;
 }
 
-static size_t write_callback(void *ptr, size_t size, size_t nmemb, void *stream){
+static size_t write_callback(void *ptr, size_t size, size_t nmemb, void *stream)
+{
     
 }
 
@@ -53,7 +56,7 @@ int azure_upload(CURL *curl, struct upload_data *data, unsigned long begin, unsi
     time_t current_time;
     struct tm *current_tm;
 
-    if (data == NULL || begin < 0 || length <= 0 || length % 512 != 0) {
+    if (data == NULL || length == 0 || length % 512 != 0 || begin % 512 != 0) {
         return 1;
     }
 
@@ -95,7 +98,7 @@ int azure_upload(CURL *curl, struct upload_data *data, unsigned long begin, unsi
 
         sprintf(url, "https://%s.blob.core.chinacloudapi.cn/%s/%s?comp=page", account, container, vhd);
         
-        //curl_easy_reset(curl);
+        curl_easy_reset(curl);
         
         curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
