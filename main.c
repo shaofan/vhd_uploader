@@ -153,11 +153,13 @@ static void *upload_thread()
         if (len == 0) {
             if (quit == 1) {
                 printf("thread quit\n");
+                pthread_mutex_unlock(&length_mutex);
                 break;
             }
             pthread_cond_wait(&length_condition, &length_mutex);
             if (quit == 1) {
                 printf("thread quit from wait\n");
+                pthread_mutex_unlock(&length_mutex);
                 break;
             }
         }       
