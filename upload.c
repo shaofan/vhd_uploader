@@ -26,6 +26,10 @@ static size_t read_callback(void *ptr, size_t size, size_t nmemb, void *stream)
     return count;
 }
 
+static size_t write_callback(void *ptr, size_t size, size_t nmemb, void *stream){
+    
+}
+
 void azure_upload_init()
 {
     curl_global_init(CURL_GLOBAL_ALL);
@@ -91,7 +95,7 @@ int azure_upload(CURL *curl, struct upload_data *data, unsigned long begin, unsi
 
         sprintf(url, "https://%s.blob.core.chinacloudapi.cn/%s/%s?comp=page", account, container, vhd);
         
-        curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+        //curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
         curl_easy_setopt(curl, CURLOPT_URL, url);
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headerlist);
@@ -99,11 +103,13 @@ int azure_upload(CURL *curl, struct upload_data *data, unsigned long begin, unsi
         curl_easy_setopt(curl, CURLOPT_PUT, 1L);
         curl_easy_setopt(curl, CURLOPT_READFUNCTION, read_callback);
         curl_easy_setopt(curl, CURLOPT_READDATA, (void *)data);
+        //curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
         curl_easy_setopt(curl, CURLOPT_INFILESIZE_LARGE, length);
 
         res = curl_easy_perform(curl);
         if (res != CURLE_OK) {
             fprintf(stderr, "curl_easy_perform() failed: url = %s, sign_str = %s, %s\n", url, sign_str, curl_easy_strerror(res));
+            return 1;
         } else {
             fprintf(stderr, "curl_easy_perform() success: url = %s, sign_str = %s, %s\n", url, sign_str, curl_easy_strerror(res));
         }

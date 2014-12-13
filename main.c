@@ -142,7 +142,7 @@ static void *upload_thread()
     
     CURL *curl;
     
-    curl = curl_easy_init();
+    
     
     for(;;) {
         pthread_mutex_lock(&length_mutex);
@@ -162,25 +162,24 @@ static void *upload_thread()
         len_t = len;
         idx_t = idx;
         memcpy(updata.buffer, buffer, len_t * 512 / __SIZEOF_LONG__);
+        send_count++;
         
         len = 0;
         pthread_cond_signal(&length_condition_r);
         
         pthread_mutex_unlock(&length_mutex);
         
-        if (len_t > 0) {
-            azure_upload(curl, &updata, idx_t * 512, len_t * 512, account, key, container, vhd);
-            send_count++;
-            process_count++;
-            printf("processed %lu\n", process_count);
-            len_t = 0;
-        }
+        curl = curl_easy_init();
+        azure_upload(curl, &updata, idx_t * 512, len_t * 512, account, key, container, vhd);
+        curl_easy_cleanup(curl);
+        len_t = 0;
+
         if (quit == 1) {
             break;
         }
     }
     
-    curl_easy_cleanup(curl);
+    
 }
 
 static void send_data()
