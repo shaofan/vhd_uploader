@@ -142,7 +142,7 @@ static void *upload_thread()
     
     CURL *curl;
     
-    
+    curl = curl_easy_init();
     
     for(;;) {
         pthread_mutex_lock(&length_mutex);
@@ -169,9 +169,7 @@ static void *upload_thread()
         
         pthread_mutex_unlock(&length_mutex);
         
-        curl = curl_easy_init();
         azure_upload(curl, &updata, idx_t * 512, len_t * 512, account, key, container, vhd);
-        curl_easy_cleanup(curl);
         len_t = 0;
 
         if (quit == 1) {
@@ -179,7 +177,7 @@ static void *upload_thread()
         }
     }
     
-    
+    curl_easy_cleanup(curl);
 }
 
 static void send_data()
