@@ -95,6 +95,8 @@ int azure_upload(CURL *curl, struct upload_data *data, unsigned long begin, unsi
 
         sprintf(url, "https://%s.blob.core.chinacloudapi.cn/%s/%s?comp=page", account, container, vhd);
         
+        curl_easy_reset(curl);
+        
         curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
         curl_easy_setopt(curl, CURLOPT_URL, url);
