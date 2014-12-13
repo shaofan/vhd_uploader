@@ -1,7 +1,7 @@
 #include <curl/curl.h>
 
-//#define MAX_PAGES_PER_UPLOAD 4096
-#define MAX_PAGES_PER_UPLOAD 8
+#define MAX_PAGES_PER_UPLOAD 4096
+//#define MAX_PAGES_PER_UPLOAD 8
 
 #ifndef __SIZEOF_INT__
 #define __SIZEOF_INT__ sizeof(int)
