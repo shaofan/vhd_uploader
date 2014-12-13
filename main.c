@@ -109,10 +109,13 @@ int main(int argc, char **argv)
     }
     
     quit = 1;
+    printf("quit set");
     pthread_cond_broadcast(&length_condition);
+    printf("quit broudcast");
     for (i = 0; i < MAX_THREADS; i++) {
         pthread_join(threads[i], NULL);
     }
+    printf("quit waiting");
     
     end_t = time(NULL);
     printf("Scaned: %.2f\% (%d/%d), Uploaded: %d pages, Average Speed: %.2f KB/S, Elapsed Time: %02d:%02d:%02d\n", main_idx * 100.0 / total_pages, main_idx, total_pages, count, (count / 2.0) / (end_t - begin_t), (end_t - begin_t) / 3600, (end_t - begin_t) % 3600 / 60, (end_t - begin_t) % 3600 % 60);
@@ -141,10 +144,12 @@ static void *upload_thread()
         
         if (len == 0) {
             if (quit == 1) {
+                printf("thread quit");
                 break;
             }
             pthread_cond_wait(&length_condition, &length_mutex);
             if (quit == 1) {
+                printf("thread quit from wait");
                 break;
             }
         }       
@@ -163,6 +168,7 @@ static void *upload_thread()
             len_t = 0;
         }
         if (quit == 1) {
+            printf("thread quit job finish");
             break;
         }
     }
@@ -192,3 +198,5 @@ static void send_data()
         break;
     }
 }
+
+static void wait_
