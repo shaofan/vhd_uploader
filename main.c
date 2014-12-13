@@ -162,17 +162,21 @@ static void *upload_thread()
             }
         }       
         
-        len_t = len;
-        idx_t = idx;
-        memcpy(updata.buffer, buffer, len_t * 512);
-        send_count++;
-        
-        len = 0;
-        pthread_cond_signal(&length_condition_r);
+        if (len > 0) {
+            len_t = len;
+            idx_t = idx;
+            memcpy(updata.buffer, buffer, len_t * 512);
+            send_count++;
+            
+            len = 0;
+            pthread_cond_signal(&length_condition_r);
+        }
         
         pthread_mutex_unlock(&length_mutex);
         
-        azure_upload(curl, &updata, idx_t * 512, len_t * 512, account, key, container, vhd);
+        if (len_t > 0) {
+            azure_upload(curl, &updata, idx_t * 512, len_t * 512, account, key, container, vhd);
+        }
 
         if (quit == 1) {
             break;
@@ -191,13 +195,15 @@ static void send_data()
         pthread_cond_wait(&length_condition_r, &length_mutex);
     }
     
-    len = main_len;
-    idx = main_idx - main_len;
-    memcpy(buffer, main_buffer, len * 512);
+    if (len == 0 && main_len > 0) {
+        len = main_len;
+        idx = main_idx - main_len;
+        memcpy(buffer, main_buffer, len * 512);
     
-    pthread_cond_signal(&length_condition);
-    
-    count += main_len;
+        pthread_cond_signal(&length_condition);
+        
+        count += main_len;
+    }
     
     pthread_mutex_unlock(&length_mutex);
 }
