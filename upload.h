@@ -1,3 +1,5 @@
+#include <curl/curl.h>
+
 #define MAX_PAGES_PER_UPLOAD 8
 
 #ifndef __SIZEOF_INT__
