@@ -112,8 +112,9 @@ int main(int argc, char **argv)
     printf("quit set\n");
     
     for (i = 0; i < MAX_THREADS; i++) {
-        printf("quit broudcast\n");
+        printf("quit get mutex lock\n");
         pthread_mutex_lock(&length_mutex);
+        printf("quit signal\n");
         pthread_cond_signal(&length_condition);
         pthread_mutex_unlock(&length_mutex);
     }
