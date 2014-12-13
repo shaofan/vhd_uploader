@@ -2,9 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <openssl/x509.h>
+#include <pthread.h>
 
 #include "hmac_sha256.h"
 #include "upload.h"
+
+static pthread_mutex_t openssl_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static size_t read_callback(void *ptr, size_t size, size_t nmemb, void *stream)
 {
@@ -50,9 +53,6 @@ int azure_upload(CURL *curl, struct upload_data *data, unsigned long begin, unsi
     unsigned char sign_str[1024], signed_str[1024], *base64_str;
     unsigned char url[512];
 
-    char *sign_key = key;
-    char *decoded_sign_key;
-
     time_t current_time;
     struct tm *current_tm;
 
@@ -69,8 +69,6 @@ int azure_upload(CURL *curl, struct upload_data *data, unsigned long begin, unsi
     memset(sign_str, 0x0, sizeof sign_str);
     memset(signed_str, 0x0, sizeof signed_str);
     memset(url, 0x0, sizeof url);
-
-    decoded_sign_key = unbase64(sign_key, strlen(sign_key));
 
     data->data_length = length;
     data->data_current = 0;
@@ -91,8 +89,11 @@ int azure_upload(CURL *curl, struct upload_data *data, unsigned long begin, unsi
         headerlist = curl_slist_append(headerlist, "Content-Type: application/octet-stream");
 
         sprintf(sign_str, "PUT\n\n\n%lu\n\napplication/octet-stream\n%s\n\n\n\n\n%s\nx-ms-page-write:update\nx-ms-version:2014-02-14\n/%s/%s/%s\ncomp:page", length, date_str, range_str, account, container, vhd);
-        hmac_sha256(sign_str, strlen(sign_str), decoded_sign_key, strlen(decoded_sign_key), signed_str);
+        pthread_mutex_lock(&openssl_mutex);
+        hmac_sha256(sign_str, strlen(sign_str), key, strlen(key), signed_str);
         base64_str = base64(signed_str, SHA256_DIGEST_LENGTH);
+        pthread_mutex_unlock(&openssl_mutex);
+        
         sprintf(header_authorization_str, "Authorization: SharedKey msp:%s", base64_str);
         headerlist = curl_slist_append(headerlist, header_authorization_str);
 

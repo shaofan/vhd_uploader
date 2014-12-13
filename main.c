@@ -1,4 +1,5 @@
 #include "upload.h"
+#include "hmac_sha256.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -12,6 +13,7 @@ static void *upload_thread();
 static void send_data();
 
 static char *filename, *account, *key, *container, *vhd;
+static char *decoded_sign_key;
 
 static pthread_mutex_t length_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t length_condition = PTHREAD_COND_INITIALIZER, length_condition_r = PTHREAD_COND_INITIALIZER;
@@ -45,6 +47,7 @@ int main(int argc, char **argv)
     key = argv[3];
     container = argv[4];
     vhd = argv[5];
+    decoded_sign_key = unbase64(key, strlen(key));
 
     fp = fopen(filename, "r");
     if (fp == NULL) {
@@ -175,7 +178,7 @@ static void *upload_thread()
         pthread_mutex_unlock(&length_mutex);
         
         if (len_t > 0) {
-            azure_upload(curl, &updata, idx_t * 512, len_t * 512, account, key, container, vhd);
+            azure_upload(curl, &updata, idx_t * 512, len_t * 512, account, decoded_sign_key, container, vhd);
         }
 
         if (quit == 1) {
