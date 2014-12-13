@@ -138,6 +138,8 @@ static void *upload_thread()
     unsigned long len_t = 0, idx_t = 0;
     struct upload_data updata;
     
+    unsigned long process_count = 0;
+    
     CURL *curl;
     
     curl = curl_easy_init();
@@ -169,6 +171,8 @@ static void *upload_thread()
         if (len_t > 0) {
             azure_upload(curl, &updata, idx_t * 512, len_t * 512, account, key, container, vhd);
             send_count++;
+            process_count++;
+            printf("Thread 0x%.8x %.8x - processed %lu\n", pthread_getthreadid_np(), process_count);
             len_t = 0;
         }
         if (quit == 1) {
