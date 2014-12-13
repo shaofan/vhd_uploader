@@ -109,21 +109,14 @@ int main(int argc, char **argv)
     }
     
     quit = 1;
-    printf("quit set\n");
+    
+    pthread_mutex_lock(&length_mutex);
+    pthread_cond_broadcast(&length_condition);
+    pthread_mutex_unlock(&length_mutex);
     
     for (i = 0; i < MAX_THREADS; i++) {
-        printf("quit get mutex lock\n");
-        pthread_mutex_lock(&length_mutex);
-        printf("quit signal\n");
-        pthread_cond_signal(&length_condition);
-        pthread_mutex_unlock(&length_mutex);
-    }
-    
-    for (i = 0; i < MAX_THREADS; i++) {
-        printf("thread join\n");
         pthread_join(threads[i], NULL);
     }
-    printf("quit waiting\n");
     
     end_t = time(NULL);
     printf("Scaned: %.2f\% (%d/%d), Uploaded: %d pages, Average Speed: %.2f KB/S, Elapsed Time: %02d:%02d:%02d\n", main_idx * 100.0 / total_pages, main_idx, total_pages, count, (count / 2.0) / (end_t - begin_t), (end_t - begin_t) / 3600, (end_t - begin_t) % 3600 / 60, (end_t - begin_t) % 3600 % 60);
@@ -152,13 +145,11 @@ static void *upload_thread()
         
         if (len == 0) {
             if (quit == 1) {
-                printf("thread quit\n");
                 pthread_mutex_unlock(&length_mutex);
                 break;
             }
             pthread_cond_wait(&length_condition, &length_mutex);
             if (quit == 1) {
-                printf("thread quit from wait\n");
                 pthread_mutex_unlock(&length_mutex);
                 break;
             }
@@ -178,7 +169,6 @@ static void *upload_thread()
             len_t = 0;
         }
         if (quit == 1) {
-            printf("thread quit job finish\n");
             break;
         }
     }
@@ -188,23 +178,20 @@ static void *upload_thread()
 
 static void send_data()
 {
-    for(;;) {
-        pthread_mutex_lock(&length_mutex);
-        
-        if (len > 0) {
-            pthread_cond_signal(&length_condition);
-            pthread_cond_wait(&length_condition_r, &length_mutex);
-        }
-        
-        len = main_len;
-        idx = main_idx - main_len;
-        memcpy(buffer, main_buffer, len * 512 / __SIZEOF_INT__);
-        
+    pthread_mutex_lock(&length_mutex);
+    
+    if (len > 0) {
         pthread_cond_signal(&length_condition);
-        
-        count += main_len;
-        
-        pthread_mutex_unlock(&length_mutex);
-        break;
+        pthread_cond_wait(&length_condition_r, &length_mutex);
     }
+    
+    len = main_len;
+    idx = main_idx - main_len;
+    memcpy(buffer, main_buffer, len * 512 / __SIZEOF_INT__);
+    
+    pthread_cond_signal(&length_condition);
+    
+    count += main_len;
+    
+    pthread_mutex_unlock(&length_mutex);
 }
