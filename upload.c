@@ -95,7 +95,7 @@ int azure_upload(CURL *curl, struct upload_data *data, unsigned long begin, unsi
 
         sprintf(url, "https://%s.blob.core.chinacloudapi.cn/%s/%s?comp=page", account, container, vhd);
         
-        //curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+        curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
         curl_easy_setopt(curl, CURLOPT_URL, url);
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headerlist);
@@ -109,7 +109,6 @@ int azure_upload(CURL *curl, struct upload_data *data, unsigned long begin, unsi
         res = curl_easy_perform(curl);
         if (res != CURLE_OK) {
             fprintf(stderr, "curl_easy_perform() failed: url = %s, sign_str = %s, %s\n", url, sign_str, curl_easy_strerror(res));
-            return 1;
         } else {
             fprintf(stderr, "curl_easy_perform() success: url = %s, sign_str = %s, %s\n", url, sign_str, curl_easy_strerror(res));
         }
