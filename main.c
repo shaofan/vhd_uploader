@@ -185,8 +185,8 @@ static void send_data()
         pthread_cond_signal(&length_condition);
         
         count += main_len;
-        break;
         
         pthread_mutex_unlock(&length_mutex);
+        break;
     }
 }
