@@ -63,8 +63,6 @@ int main(int argc, char **argv)
     total_pages /= 512;  
     fseek(fp, 0L, SEEK_SET);
     
-    printf("sizeof int = %d, long = %d\n", sizeof(int), sizeof(long));
-    
     for (i = 0; i < MAX_THREADS; i++) {
          pthread_create(&threads[i], NULL, &upload_thread, NULL);
     }
