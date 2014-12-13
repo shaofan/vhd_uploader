@@ -198,5 +198,3 @@ static void send_data()
         break;
     }
 }
-
-static void wait_
