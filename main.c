@@ -5,7 +5,7 @@
 #include <time.h>
 #include <pthread.h>
 
-#define MAX_THREADS 3
+#define MAX_THREADS 5
 
 static void usage();
 static void *upload_thread();
