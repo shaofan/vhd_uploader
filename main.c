@@ -29,7 +29,7 @@ int main(int argc, char **argv)
     pthread_t threads[MAX_THREADS];
     
     int read_buffer[512 / __SIZEOF_INT__];
-    int total_pages = 0;
+    long total_pages = 0;
     int i;
     time_t begin_t, end_t;
     int is_send, is_pre_send;
@@ -55,13 +55,12 @@ int main(int argc, char **argv)
     azure_upload_init();
     
     fseek(fp, 0L, SEEK_END);
-    total_pages = ftell(fp) / 512;
-    /*if (total_pages % 512 != 0) {
+    total_pages = ftell(fp);
+    if (total_pages % 512 != 0) {
         printf("wrong file size\n");
         return(1);
     }
-    total_pages /= 512;*/    
-    printf("total_pages = %d\n", total_pages);
+    total_pages /= 512;  
     fseek(fp, 0L, SEEK_SET);
     
     for (i = 0; i < MAX_THREADS; i++) {
@@ -78,7 +77,6 @@ int main(int argc, char **argv)
                 break;
             }
         }
-        printf("is_send = %d, is_pre_send = %d\n", is_send, is_pre_send);
         
         if (is_send == 1) {
             if (is_pre_send == 1) {
@@ -135,10 +133,7 @@ static void *upload_thread()
     struct upload_data updata;
     
     for(;;) {
-        printf("start new thread main_len = %d, main_idx = %d, len = %d, idx = %d\n", main_len, main_idx, len, idx);
         pthread_mutex_lock(&length_mutex);
-        
-        printf("get mutex main_len = %d, main_idx = %d, len = %d, idx = %d\n", main_len, main_idx, len, idx);
         
         if (len == 0) {
             pthread_cond_wait(&length_condition, &length_mutex);
@@ -169,12 +164,10 @@ static void *upload_thread()
 static void send_data()
 {
     for(;;) {
-        printf("sending data main_len = %d, main_idx = %d, len = %d, idx = %d\n", main_len, main_idx, len, idx);
         pthread_mutex_lock(&length_mutex);
         
         if (len > 0) {
             pthread_cond_signal(&length_condition);
-            printf("send_data wait cond main_len = %d, main_idx = %d, len = %d, idx = %d\n", main_len, main_idx, len, idx);
             pthread_cond_wait(&length_condition_r, &length_mutex);
         }
         

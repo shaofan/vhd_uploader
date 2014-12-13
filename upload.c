@@ -51,8 +51,6 @@ int azure_upload(struct upload_data *data, int begin, int length, char *account,
     time_t current_time;
     struct tm *current_tm;
 
-    printf("uploading begin = %d, length = %d\n", begin, length);
-
     if (data == NULL || begin < 0 || length <= 0 || length % 512 != 0) {
         return 1;
     }
@@ -72,11 +70,8 @@ int azure_upload(struct upload_data *data, int begin, int length, char *account,
     data->data_length = length;
     data->data_current = 0;
 
-    printf("uploading begin 0 = %d, length = %d\n", begin, length);
-
     curl = curl_easy_init();
     if (curl) {
-        printf("uploading begin 1 = %d, length = %d\n", begin, length);
         time(&current_time);
         current_tm = gmtime(&current_time);
         strftime(date_str, sizeof date_str, "%a, %d %b %Y %T GMT", current_tm);
@@ -99,7 +94,6 @@ int azure_upload(struct upload_data *data, int begin, int length, char *account,
 
         sprintf(url, "https://%s.blob.core.chinacloudapi.cn/%s/%s?comp=page", account, container, vhd);
         
-        printf("uploading begin 2 = %d, length = %d\n", begin, length);
         //curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
         curl_easy_setopt(curl, CURLOPT_URL, url);
@@ -113,8 +107,6 @@ int azure_upload(struct upload_data *data, int begin, int length, char *account,
         res = curl_easy_perform(curl);
         if (res != CURLE_OK) {
             fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
-        } else {
-            fprintf(stderr, "curl_easy_perform() success: %s\n", curl_easy_strerror(res));
         }
         
         curl_slist_free_all(headerlist);
