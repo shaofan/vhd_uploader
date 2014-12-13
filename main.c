@@ -32,7 +32,7 @@ int main(int argc, char **argv)
     long total_pages = 0;
     int i;
     time_t begin_t, end_t;
-    int is_send, is_pre_send;
+    int is_send, is_pre_send, request_count;
 
     if (argc != 6) {
         printf("wrong number of arguments\n");
@@ -87,6 +87,7 @@ int main(int argc, char **argv)
                     memcpy(main_buffer + main_len * 512 / __SIZEOF_INT__, read_buffer, 512);
                     main_len++;
                     send_data();
+                    request_count++;
                     main_len = 0;
                 }
             } else {
@@ -95,6 +96,7 @@ int main(int argc, char **argv)
             }
         } else if (main_len > 0) {
             send_data();
+            request_count++;
             main_len = 0;
         }
         
@@ -102,7 +104,7 @@ int main(int argc, char **argv)
         
         if (main_idx % 1000 == 0) {
             end_t = time(NULL);
-            printf("Scaned: %.2f\% (%d/%d), Uploaded: %d, pages Average Speed: %.2f KB/S, Elapsed Time: %02d:%02d:%02d\r", main_idx * 100.0 / total_pages, main_idx, total_pages, count, (count / 2.0) / (end_t - begin_t), (end_t - begin_t) / 3600, (end_t - begin_t) % 3600 / 60, (end_t - begin_t) % 3600 % 60);
+            printf("Scaned: %.2f\% (%.2fMB/%.2fMB), Uploaded: %.2fMB in %d requests, Average Speed: %.2f MB/S, Elapsed Time: %02d:%02d:%02d\r", main_idx * 100.0 / total_pages, main_idx / 2048.0 , total_pages / 2048.0, count / 2048.0, request_count, (count / 2048.0) / (end_t - begin_t), (end_t - begin_t) / 3600, (end_t - begin_t) % 3600 / 60, (end_t - begin_t) % 3600 % 60);
             fflush(stdout);
         }
         main_idx++;
@@ -119,7 +121,7 @@ int main(int argc, char **argv)
     }
     
     end_t = time(NULL);
-    printf("Scaned: %.2f\% (%d/%d), Uploaded: %d pages, Average Speed: %.2f KB/S, Elapsed Time: %02d:%02d:%02d\n", main_idx * 100.0 / total_pages, main_idx, total_pages, count, (count / 2.0) / (end_t - begin_t), (end_t - begin_t) / 3600, (end_t - begin_t) % 3600 / 60, (end_t - begin_t) % 3600 % 60);
+    printf("Scaned: %.2f\% (%.2fMB/%.2fMB), Uploaded: %.2fMB in %d requests, Average Speed: %.2f MB/S, Elapsed Time: %02d:%02d:%02d\n", main_idx * 100.0 / total_pages, main_idx / 2048.0, total_pages / 2048.0, count / 2048.0, request_count, (count / 2048.0) / (end_t - begin_t), (end_t - begin_t) / 3600, (end_t - begin_t) % 3600 / 60, (end_t - begin_t) % 3600 % 60);
     fflush(stdout);
 
     azure_upload_cleanup();
