@@ -15,10 +15,10 @@ static char *filename, *account, *key, *container, *vhd;
 
 static pthread_mutex_t length_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t length_condition = PTHREAD_COND_INITIALIZER, length_condition_r = PTHREAD_COND_INITIALIZER;
-static int buffer[MAX_PAGES_PER_UPLOAD * 512 / __SIZEOF_INT__], len, idx;
-static int main_buffer[MAX_PAGES_PER_UPLOAD * 512 / __SIZEOF_INT__], main_len, main_idx;
+static long buffer[MAX_PAGES_PER_UPLOAD * 512 / __SIZEOF_LONG__], len, idx;
+static long main_buffer[MAX_PAGES_PER_UPLOAD * 512 / __SIZEOF_LONG__], main_len, main_idx;
 
-static int count;
+static long count;
 
 static int quit;
 
@@ -28,11 +28,11 @@ int main(int argc, char **argv)
 
     pthread_t threads[MAX_THREADS];
     
-    int read_buffer[512 / __SIZEOF_INT__];
+    long read_buffer[512 / __SIZEOF_LONG__];
     long total_pages = 0;
     int i;
     time_t begin_t, end_t;
-    int is_send, is_pre_send, request_count;
+    long is_send, is_pre_send, request_count;
 
     if (argc != 6) {
         printf("wrong number of arguments\n");
@@ -73,7 +73,7 @@ int main(int argc, char **argv)
     while (!feof(fp)) {
         fread(read_buffer, 512, 1, fp);
         is_send = 0;
-        for (i = 0; i < 512 / __SIZEOF_INT__; i++) {
+        for (i = 0; i < 512 / __SIZEOF_LONG__; i++) {
             if (read_buffer[i] != 0) {
                 is_send = 1;
                 break;
@@ -83,17 +83,17 @@ int main(int argc, char **argv)
         if (is_send == 1) {
             if (is_pre_send == 1) {
                 if (main_len < MAX_PAGES_PER_UPLOAD - 1) {
-                    memcpy(main_buffer + main_len * 512 / __SIZEOF_INT__, read_buffer, 512);
+                    memcpy(main_buffer + main_len * 512 / __SIZEOF_LONG__, read_buffer, 512);
                     main_len++;
                 } else if (main_len == MAX_PAGES_PER_UPLOAD - 1) {
-                    memcpy(main_buffer + main_len * 512 / __SIZEOF_INT__, read_buffer, 512);
+                    memcpy(main_buffer + main_len * 512 / __SIZEOF_LONG__, read_buffer, 512);
                     main_len++;
                     send_data();
                     request_count++;
                     main_len = 0;
                 }
             } else {
-                memcpy(main_buffer + main_len * 512 / __SIZEOF_INT__, read_buffer, 512);
+                memcpy(main_buffer + main_len * 512 / __SIZEOF_LONG__, read_buffer, 512);
                 main_len++;
             }
         } else if (main_len > 0) {
@@ -137,7 +137,7 @@ static void usage()
 
 static void *upload_thread()
 {
-    int len_t = 0, idx_t = 0;
+    long len_t = 0, idx_t = 0;
     struct upload_data updata;
     
     CURL *curl;
@@ -161,7 +161,7 @@ static void *upload_thread()
         
         len_t = len;
         idx_t = idx;
-        memcpy(updata.buffer, buffer, len_t * 512 / __SIZEOF_INT__);
+        memcpy(updata.buffer, buffer, len_t * 512 / __SIZEOF_LONG__);
         
         len = 0;
         pthread_cond_signal(&length_condition_r);
@@ -191,7 +191,7 @@ static void send_data()
     
     len = main_len;
     idx = main_idx - main_len;
-    memcpy(buffer, main_buffer, len * 512 / __SIZEOF_INT__);
+    memcpy(buffer, main_buffer, len * 512 / __SIZEOF_LONG__);
     
     pthread_cond_signal(&length_condition);
     

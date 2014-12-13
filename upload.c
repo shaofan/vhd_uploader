@@ -31,7 +31,7 @@ void azure_upload_init()
     curl_global_init(CURL_GLOBAL_ALL);
 }
 
-int azure_upload(CURL *curl, struct upload_data *data, int begin, int length, char *account, char *key, char *container, char *vhd)
+int azure_upload(CURL *curl, struct upload_data *data, long begin, long length, char *account, char *key, char *container, char *vhd)
 {
     CURLcode res;
 
