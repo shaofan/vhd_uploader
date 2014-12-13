@@ -83,16 +83,16 @@ int main(int argc, char **argv)
         if (is_send == 1) {
             if (is_pre_send == 1) {
                 if (main_len < MAX_PAGES_PER_UPLOAD - 1) {
-                    memcpy(main_buffer + main_len * 512, read_buffer, 512);
+                    memcpy(main_buffer + main_len * 512 / __SIZEOF_INT__, read_buffer, 512);
                     main_len++;
                 } else if (main_len == MAX_PAGES_PER_UPLOAD - 1) {
-                    memcpy(main_buffer + main_len * 512, read_buffer, 512);
+                    memcpy(main_buffer + main_len * 512 / __SIZEOF_INT__, read_buffer, 512);
                     main_len++;
                     send_data();
                     main_len = 0;
                 }
             } else {
-                memcpy(main_buffer + main_len * 512, read_buffer, 512);
+                memcpy(main_buffer + main_len * 512 / __SIZEOF_INT__, read_buffer, 512);
                 main_len++;
             }
         } else if (main_len > 0) {
@@ -149,7 +149,7 @@ static void *upload_thread()
         
         len_t = len;
         idx_t = idx;
-        memcpy(updata.buffer, buffer, len_t * 512);
+        memcpy(updata.buffer, buffer, len_t * 512 / __SIZEOF_INT__);
         
         len = 0;
         pthread_cond_signal(&length_condition_r);
@@ -180,7 +180,7 @@ static void send_data()
         
         len = main_len;
         idx = main_idx - main_len;
-        memcpy(buffer, main_buffer, len);
+        memcpy(buffer, main_buffer, len * 512 / __SIZEOF_INT__);
         
         pthread_cond_signal(&length_condition);
         
