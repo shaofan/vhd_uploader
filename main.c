@@ -48,7 +48,7 @@ int main(int argc, char **argv)
     key = argv[3];
     container = argv[4];
     vhd = argv[5];
-    decoded_sign_key = malloc(strlen(key));
+    decoded_sign_key = (char *) malloc(strlen(key));
     key_len = unbase64(key, decoded_sign_key, strlen(key));
 
     fp = fopen(filename, "r");
