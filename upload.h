@@ -14,5 +14,5 @@ struct upload_data {
 };
 
 void azure_upload_init();
-int azure_upload(CURL *curl, struct upload_data *data, unsigned long begin, unsigned long length, char *account, char *key, char *container, char *vhd);
+int azure_upload(CURL *curl, struct upload_data *data, unsigned long begin, unsigned long length, char *account, char *key, int key_len, char *container, char *vhd);
 void azure_upload_cleanup();

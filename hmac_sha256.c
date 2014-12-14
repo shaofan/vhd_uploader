@@ -21,8 +21,8 @@ hmac_sha256(
     unsigned char result[EVP_MAX_MD_SIZE];
 
     HMAC(EVP_sha256(),
-         key, strlen(key),
-         text, strlen(text),
+         key, key_len,
+         text, text_len,
          result, &result_len);
     memcpy(digest, result, result_len);
 }
@@ -122,23 +122,21 @@ base64( const unsigned char *src, size_t sz )
     return ( (char *)qq );
 }
 
-char *unbase64(unsigned char *input, int length)
+int unbase64(unsigned char *input, char *output, int length)
 {
   BIO *b64, *bmem;
-
-  char *buffer = (char *)malloc(length);
-  memset(buffer, 0, length);
+  int len;
 
   b64 = BIO_new(BIO_f_base64());
   BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
   bmem = BIO_new_mem_buf(input, length);
   bmem = BIO_push(b64, bmem);
 
-  BIO_read(bmem, buffer, length);
+  len = BIO_read(bmem, output, length);
 
   BIO_free_all(bmem);
 
-  return buffer;
+  return len;
 }
 
 int main_t() 

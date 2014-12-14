@@ -14,6 +14,7 @@ static void send_data();
 
 static char *filename, *account, *key, *container, *vhd;
 static char *decoded_sign_key;
+static int key_len;
 
 static pthread_mutex_t length_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t length_condition = PTHREAD_COND_INITIALIZER, length_condition_r = PTHREAD_COND_INITIALIZER;
@@ -47,7 +48,8 @@ int main(int argc, char **argv)
     key = argv[3];
     container = argv[4];
     vhd = argv[5];
-    decoded_sign_key = unbase64(key, strlen(key));
+    decoded_sign_key = malloc(strlen(key));
+    key_len = unbase64(key, decoded_sign_key, strlen(key));
 
     fp = fopen(filename, "r");
     if (fp == NULL) {
@@ -132,6 +134,7 @@ int main(int argc, char **argv)
 
     azure_upload_cleanup();
     fclose(fp);
+    free(decoded_sign_key);
 }
 
 static void usage()
@@ -178,7 +181,7 @@ static void *upload_thread()
         pthread_mutex_unlock(&length_mutex);
         
         if (len_t > 0) {
-            azure_upload(curl, &updata, idx_t * 512, len_t * 512, account, decoded_sign_key, container, vhd);
+            azure_upload(curl, &updata, idx_t * 512, len_t * 512, account, decoded_sign_key, key_len, container, vhd);
         }
 
         if (quit == 1) {

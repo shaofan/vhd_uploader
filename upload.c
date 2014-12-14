@@ -41,7 +41,7 @@ void azure_upload_init()
     curl_global_init(CURL_GLOBAL_ALL);
 }
 
-int azure_upload(CURL *curl, struct upload_data *data, unsigned long begin, unsigned long length, char *account, char *key, char *container, char *vhd)
+int azure_upload(CURL *curl, struct upload_data *data, unsigned long begin, unsigned long length, char *account, char *key, int key_len, char *container, char *vhd)
 {
     CURLcode res;
 
@@ -90,11 +90,11 @@ int azure_upload(CURL *curl, struct upload_data *data, unsigned long begin, unsi
 
         sprintf(sign_str, "PUT\n\n\n%lu\n\napplication/octet-stream\n%s\n\n\n\n\n%s\nx-ms-page-write:update\nx-ms-version:2014-02-14\n/%s/%s/%s\ncomp:page", length, date_str, range_str, account, container, vhd);
         //pthread_mutex_lock(&openssl_mutex);
-        hmac_sha256(sign_str, strlen(sign_str), key, strlen(key), signed_str);
+        hmac_sha256(sign_str, strlen(sign_str), key, key_len, signed_str);
         base64_str = base64(signed_str, SHA256_DIGEST_LENGTH);
         //pthread_mutex_unlock(&openssl_mutex);
         
-        sprintf(header_authorization_str, "Authorization: SharedKey msp:%s", base64_str);
+        sprintf(header_authorization_str, "Authorization: SharedKey %s:%s", account, base64_str);
         headerlist = curl_slist_append(headerlist, header_authorization_str);
 
         sprintf(url, "https://%s.blob.core.chinacloudapi.cn/%s/%s?comp=page", account, container, vhd);
