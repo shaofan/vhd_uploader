@@ -49,6 +49,7 @@ int main(int argc, char **argv)
     key = argv[3];
     container = argv[4];
     vhd = argv[5];
+    
     decoded_sign_key = (char *) malloc(strlen(key));
     key_len = unbase64(key, decoded_sign_key, strlen(key));
 
@@ -59,6 +60,8 @@ int main(int argc, char **argv)
     }
 
     azure_upload_init();
+    
+    azure_put_pageblob(account, decoded_sign_key, key_len, container, vhd);
     
     fseek(fp, 0L, SEEK_END);
     total_pages = ftell(fp);
