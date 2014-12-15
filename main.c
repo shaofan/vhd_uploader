@@ -119,6 +119,12 @@ int main(int argc, char **argv)
         }
     }
     
+    if (main_len > 0) {
+        send_data();
+        request_count++;
+        main_len = 0;
+    }
+    
     quit = 1;
     
     pthread_mutex_lock(&length_mutex);
