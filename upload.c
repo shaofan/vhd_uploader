@@ -164,7 +164,7 @@ int azure_put_pageblob(char *account, char *key, int key_len, char *container, c
         headerlist = curl_slist_append(headerlist, "Content-Type: text/plain; charset=UTF-8");
 
         sprintf(header_length_str, "x-ms-blob-content-length:%lu", length);
-        sprintf(sign_str, "PUT\n\n\n%d\n\ntext/plain; charset=UTF-8\n%s\n\n\n\n\n\n%s\nx-ms-blob-type:PageBlob\nx-ms-version:2014-02-14\n/%s/%s/%s\n", 0, date_str, header_length_str, account, container, vhd);
+        sprintf(sign_str, "PUT\n\n\n%d\n\ntext/plain; charset=UTF-8\n%s\n\n\n\n\n\n%s\nx-ms-blob-type:PageBlob\nx-ms-version:2014-02-14\n/%s/%s/%s", 0, date_str, header_length_str, account, container, vhd);
         
         hmac_sha256(sign_str, strlen(sign_str), key, key_len, signed_str);
         base64_str = base64(signed_str, SHA256_DIGEST_LENGTH);
