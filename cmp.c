@@ -6,8 +6,8 @@
 
 int azure_cmp() {
     FILE *fp1, *fp2;
-    int buffer1[512/__SIZEOF_LONG__], buffer2[512/__SIZEOF_LONG__];
-    int i, iblock, count;
+    unsigned long buffer1[512/__SIZEOF_LONG__], buffer2[512/__SIZEOF_LONG__];
+    unsigned long i, iblock, count;
 
     fp1 = fopen("/cnnokia/restro.vhd", "r");
     fp2 = fopen("/cnnokia/testupload.vhd", "r");
@@ -23,7 +23,7 @@ int azure_cmp() {
         fread(buffer2, 512, 1, fp2);
         for (i = 0; i < 512/__SIZEOF_LONG__; i++) {
             if (buffer1[i] != buffer2[i]) {
-                printf("Block %d NE\n", iblock);
+                printf("Block %lu NE\n", iblock);
                 count++;
                 break;
             }
@@ -31,7 +31,7 @@ int azure_cmp() {
         iblock++;
     }
 
-    printf("count = %d\n", count);
+    printf("count = %lu\n", count);
     fclose(fp1);
     fclose(fp2);
 }
