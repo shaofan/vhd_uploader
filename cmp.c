@@ -6,7 +6,7 @@ int azure_cmp() {
     int i, iblock, count;
 
     fp1 = fopen("/cnnokia/restro.vhd", "r");
-    fp2 = fopen("/cnnokia/tlvro002.vhd", "r");
+    fp2 = fopen("/cnnokia/testupload.vhd", "r");
 
     if (fp1 == NULL || fp2 == NULL) {
         fprintf(stderr, "Can't open files!\n");
@@ -19,7 +19,7 @@ int azure_cmp() {
         fread(buffer2, 512, 1, fp2);
         for (i = 0; i < 512/__SIZEOF_INT__; i++) {
             if (buffer1[i] != buffer2[i]) {
-                //printf("Block %d NE\n", iblock);
+                printf("Block %d NE\n", iblock);
                 count++;
                 break;
             }
@@ -56,4 +56,9 @@ int azure_cmp_zero() {
     printf("count = %d\n", count);
 
     fclose(fp1);
+}
+
+int main() 
+{
+    azure_cmp();
 }
