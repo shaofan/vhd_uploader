@@ -1,4 +1,4 @@
-#Include <stdio.h>
+#include <stdio.h>
 
 int azure_cmp() {
     FILE *fp1, *fp2;
