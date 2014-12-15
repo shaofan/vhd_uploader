@@ -102,7 +102,7 @@ int azure_upload(CURL *curl, struct upload_data *data, unsigned long begin, unsi
         
         curl_easy_reset(curl);
         
-        curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+        //curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
         curl_easy_setopt(curl, CURLOPT_URL, url);
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headerlist);
@@ -117,7 +117,7 @@ int azure_upload(CURL *curl, struct upload_data *data, unsigned long begin, unsi
         if (res != CURLE_OK) {
             fprintf(stderr, "curl_easy_perform() failed: url = %s, sign_str = %s, %s\n", url, sign_str, curl_easy_strerror(res));
         } else {
-            fprintf(stderr, "curl_easy_perform() success: url = %s, sign_str = %s, %s\n", url, sign_str, curl_easy_strerror(res));
+            //fprintf(stderr, "curl_easy_perform() success: url = %s, sign_str = %s, %s\n", url, sign_str, curl_easy_strerror(res));
         }
         
         curl_slist_free_all(headerlist);
@@ -177,7 +177,7 @@ int azure_put_pageblob(char *account, char *key, int key_len, char *container, c
         
         curl_easy_reset(curl);
         
-        curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+        //curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
         curl_easy_setopt(curl, CURLOPT_URL, url);
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headerlist);
@@ -192,7 +192,7 @@ int azure_put_pageblob(char *account, char *key, int key_len, char *container, c
         if (res != CURLE_OK) {
             fprintf(stderr, "curl_easy_perform() failed: url = %s, sign_str = %s, %s\n", url, sign_str, curl_easy_strerror(res));
         } else {
-            fprintf(stderr, "curl_easy_perform() success: url = %s, sign_str = %s, %s\n", url, sign_str, curl_easy_strerror(res));
+            //fprintf(stderr, "curl_easy_perform() success: url = %s, sign_str = %s, %s\n", url, sign_str, curl_easy_strerror(res));
         }
         
         curl_slist_free_all(headerlist);
