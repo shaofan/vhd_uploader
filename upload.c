@@ -74,6 +74,7 @@ int azure_upload(CURL *curl, struct upload_data *data, unsigned long begin, unsi
     data->data_current = 0;
 
     if (curl) {
+        pthread_mutex_lock(&openssl_mutex);
         time(&current_time);
         current_tm = gmtime(&current_time);
         strftime(date_str, sizeof date_str, "%a, %d %b %Y %T GMT", current_tm);
@@ -89,15 +90,15 @@ int azure_upload(CURL *curl, struct upload_data *data, unsigned long begin, unsi
         headerlist = curl_slist_append(headerlist, "Content-Type: application/octet-stream");
 
         sprintf(sign_str, "PUT\n\n\n%lu\n\napplication/octet-stream\n%s\n\n\n\n\n%s\nx-ms-page-write:update\nx-ms-version:2014-02-14\n/%s/%s/%s\ncomp:page", length, date_str, range_str, account, container, vhd);
-        pthread_mutex_lock(&openssl_mutex);
+        
         hmac_sha256(sign_str, strlen(sign_str), key, key_len, signed_str);
         base64_str = base64(signed_str, SHA256_DIGEST_LENGTH);
-        pthread_mutex_unlock(&openssl_mutex);
         
         sprintf(header_authorization_str, "Authorization: SharedKey %s:%s", account, base64_str);
         headerlist = curl_slist_append(headerlist, header_authorization_str);
 
         sprintf(url, "https://%s.blob.core.chinacloudapi.cn/%s/%s?comp=page", account, container, vhd);
+        pthread_mutex_unlock(&openssl_mutex);
         
         curl_easy_reset(curl);
         
