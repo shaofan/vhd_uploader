@@ -74,8 +74,7 @@ int main(int argc, char **argv)
     }
 
     begin_t = time(NULL);
-    while (!feof(fp)) {
-        fread(read_buffer, 512, 1, fp);
+    while (fread(read_buffer, 1, 512, fp) == 512) {
         is_send = 0;
         for (i = 0; i < 512 / __SIZEOF_LONG__; i++) {
             if (read_buffer[i] != 0) {
