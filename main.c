@@ -60,9 +60,7 @@ int main(int argc, char **argv)
     }
 
     azure_upload_init();
-    
-    azure_put_pageblob(account, decoded_sign_key, key_len, container, vhd);
-    
+
     fseek(fp, 0L, SEEK_END);
     total_pages = ftell(fp);
     if (total_pages % 512 != 0) {
@@ -71,6 +69,8 @@ int main(int argc, char **argv)
     }
     total_pages /= 512;  
     fseek(fp, 0L, SEEK_SET);
+    
+    azure_put_pageblob(account, decoded_sign_key, key_len, container, vhd, total_pages * 512);
     
     for (i = 0; i < MAX_THREADS; i++) {
          pthread_create(&threads[i], NULL, &upload_thread, NULL);

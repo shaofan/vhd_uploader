@@ -124,7 +124,7 @@ int azure_upload(CURL *curl, struct upload_data *data, unsigned long begin, unsi
     }
 }
 
-int azure_put_pageblob(char *account, char *key, int key_len, char *container, char *vhd)
+int azure_put_pageblob(char *account, char *key, int key_len, char *container, char *vhd, unsigned long length)
 {
     CURL *curl;
     CURLcode res;
@@ -156,7 +156,6 @@ int azure_put_pageblob(char *account, char *key, int key_len, char *container, c
         sprintf(header_date_str, "Date: %s", date_str);
         headerlist = curl_slist_append(headerlist, header_date_str);
        
-        headerlist = curl_slist_append(headerlist, header_range_str);
         sprintf(header_length_str, "x-ms-blob-content-length: %d", length);
         headerlist = curl_slist_append(headerlist, header_length_str);
         
