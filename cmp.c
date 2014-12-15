@@ -1,8 +1,12 @@
 #include <stdio.h>
 
+#ifndef __SIZEOF_LONG__
+#define __SIZEOF_LONG__ sizeof(unsigned long)
+#endif
+
 int azure_cmp() {
     FILE *fp1, *fp2;
-    int buffer1[512/__SIZEOF_INT__], buffer2[512/__SIZEOF_INT__];
+    int buffer1[512/__SIZEOF_LONG__], buffer2[512/__SIZEOF_LONG__];
     int i, iblock, count;
 
     fp1 = fopen("/cnnokia/restro.vhd", "r");
@@ -17,7 +21,7 @@ int azure_cmp() {
     while (!feof(fp1) && !feof(fp2)) {
         fread(buffer1, 512, 1, fp1);
         fread(buffer2, 512, 1, fp2);
-        for (i = 0; i < 512/__SIZEOF_INT__; i++) {
+        for (i = 0; i < 512/__SIZEOF_LONG__; i++) {
             if (buffer1[i] != buffer2[i]) {
                 printf("Block %d NE\n", iblock);
                 count++;
@@ -34,7 +38,7 @@ int azure_cmp() {
 
 int azure_cmp_zero() {
     FILE *fp1;
-    int buffer1[512/__SIZEOF_INT__];
+    int buffer1[512/__SIZEOF_LONG__];
     int i, count = 0;
 
     fp1 = fopen("/cnnokia/restro.vhd", "r");
@@ -45,7 +49,7 @@ int azure_cmp_zero() {
 
     while (!feof(fp1)) {
         fread(buffer1, 512, 1, fp1);
-        for (i = 0; i < 512/__SIZEOF_INT__; i++) {
+        for (i = 0; i < 512/__SIZEOF_LONG__; i++) {
             if (buffer1[i] != 0) {
                 count++;
                 break;
