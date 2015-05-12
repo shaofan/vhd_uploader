@@ -13,10 +13,10 @@ static size_t read_callback(void *ptr, size_t size, size_t nmemb, void *stream)
 {
     struct upload_data *updata;
     char *pdata;
-    
+
     updata = (struct upload_data *) stream;
     pdata = (char *) updata->buffer;
-    
+
     if (updata->data_current == updata->data_length - 1) {
         return 0;
     }
@@ -33,7 +33,7 @@ static size_t read_callback(void *ptr, size_t size, size_t nmemb, void *stream)
 
 static size_t write_callback(void *ptr, size_t size, size_t nmemb, void *stream)
 {
-    
+
 }
 
 void azure_upload_init()
@@ -90,18 +90,18 @@ int azure_upload(CURL *curl, struct upload_data *data, unsigned long begin, unsi
         headerlist = curl_slist_append(headerlist, "Content-Type: application/octet-stream");
 
         sprintf(sign_str, "PUT\n\n\n%lu\n\napplication/octet-stream\n%s\n\n\n\n\n%s\nx-ms-page-write:update\nx-ms-version:2014-02-14\n/%s/%s/%s\ncomp:page", length, date_str, range_str, account, container, vhd);
-        
+
         hmac_sha256(sign_str, strlen(sign_str), key, key_len, signed_str);
         base64_str = base64(signed_str, SHA256_DIGEST_LENGTH);
-        
+
         sprintf(header_authorization_str, "Authorization: SharedKey %s:%s", account, base64_str);
         headerlist = curl_slist_append(headerlist, header_authorization_str);
 
         sprintf(url, "https://%s.blob.core.chinacloudapi.cn/%s/%s?comp=page", account, container, vhd);
         pthread_mutex_unlock(&openssl_mutex);
-        
+
         curl_easy_reset(curl);
-        
+
         //curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
         curl_easy_setopt(curl, CURLOPT_URL, url);
@@ -119,7 +119,7 @@ int azure_upload(CURL *curl, struct upload_data *data, unsigned long begin, unsi
         } else {
             //fprintf(stderr, "curl_easy_perform() success: url = %s, sign_str = %s, %s\n", url, sign_str, curl_easy_strerror(res));
         }
-        
+
         curl_slist_free_all(headerlist);
     }
 }
@@ -146,7 +146,7 @@ int azure_put_pageblob(char *account, char *key, int key_len, char *container, c
     memset(sign_str, 0x0, sizeof sign_str);
     memset(signed_str, 0x0, sizeof signed_str);
     memset(url, 0x0, sizeof url);
-    
+
     curl = curl_easy_init();
     if (curl) {
         pthread_mutex_lock(&openssl_mutex);
@@ -155,28 +155,28 @@ int azure_put_pageblob(char *account, char *key, int key_len, char *container, c
         strftime(date_str, sizeof date_str, "%a, %d %b %Y %T GMT", current_tm);
         sprintf(header_date_str, "Date: %s", date_str);
         headerlist = curl_slist_append(headerlist, header_date_str);
-       
+
         sprintf(header_length_str, "x-ms-blob-content-length: %lu", length);
         headerlist = curl_slist_append(headerlist, header_length_str);
-        
+
         headerlist = curl_slist_append(headerlist, "x-ms-version: 2014-02-14");
         headerlist = curl_slist_append(headerlist, "x-ms-blob-type: PageBlob");
-        headerlist = curl_slist_append(headerlist, "Content-Type: text/plain; charset=UTF-8");
+        headerlist = curl_slist_append(headerlist, "Content-Type: application/octet-stream");
 
         sprintf(header_length_str, "x-ms-blob-content-length:%lu", length);
         sprintf(sign_str, "PUT\n\n\n%d\n\ntext/plain; charset=UTF-8\n%s\n\n\n\n\n\n%s\nx-ms-blob-type:PageBlob\nx-ms-version:2014-02-14\n/%s/%s/%s", 0, date_str, header_length_str, account, container, vhd);
-        
+
         hmac_sha256(sign_str, strlen(sign_str), key, key_len, signed_str);
         base64_str = base64(signed_str, SHA256_DIGEST_LENGTH);
-        
+
         sprintf(header_authorization_str, "Authorization: SharedKey %s:%s", account, base64_str);
         headerlist = curl_slist_append(headerlist, header_authorization_str);
 
         sprintf(url, "https://%s.blob.core.chinacloudapi.cn/%s/%s", account, container, vhd);
         pthread_mutex_unlock(&openssl_mutex);
-        
+
         curl_easy_reset(curl);
-        
+
         //curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
         curl_easy_setopt(curl, CURLOPT_URL, url);
@@ -194,7 +194,7 @@ int azure_put_pageblob(char *account, char *key, int key_len, char *container, c
         } else {
             //fprintf(stderr, "curl_easy_perform() success: url = %s, sign_str = %s, %s\n", url, sign_str, curl_easy_strerror(res));
         }
-        
+
         curl_slist_free_all(headerlist);
         curl_easy_cleanup(curl);
     }
@@ -204,4 +204,3 @@ void azure_upload_cleanup()
 {
     curl_global_cleanup();
 }
-
